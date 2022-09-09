@@ -11,7 +11,7 @@ class App extends Component {
     window.erc20_token = await this.loadContract('./ERC20TokenTemplate.json')
     window.erc20_vendor = await this.loadContract('./ERC20TokenVendor.json')
     await this.loadBalance()
-
+    await this.loadSymbol()
   }
 
   async loadBlockchainData() {
@@ -40,7 +40,12 @@ class App extends Component {
     this.setState({balance: balanceOf.toString()})
   }
 
-  buy_tokens = async () => {
+  async loadSymbol() {
+    const symbol = await window.erc20_token.symbol.call()
+    this.setState({symbol: symbol.toString()})
+  }
+
+  buyTokens = async () => {
     const accounts = await window.web3.eth.getAccounts()
     const convert_ratio = await window.erc20_vendor.convert_ratio.call()
     const amount_in_token = this.state.amount_to_buy
@@ -62,14 +67,14 @@ class App extends Component {
           <Form.Label>Amount</Form.Label>
           <Form.Control type="text"
                 value={this.state.amount_to_buy}
-                placeholder="MTK"
+                placeholder={this.state.symbol}
                 onChange={e => this.setState({ amount_to_buy: e.target.value })}
                 />
           <Form.Text className="text-muted">
             Amount in MTK
           </Form.Text>
         </Form.Group>
-        <Button variant="primary" onClick={this.buy_tokens}>
+        <Button variant="primary" onClick={this.buyTokens}>
           Buy
         </Button>
       </Form>
@@ -79,7 +84,8 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = { 
-        account: '', 
+        account: '',
+        symbol: '',
         balance: 0,
         amount_to_buy: 0
       }

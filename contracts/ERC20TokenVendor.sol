@@ -7,12 +7,14 @@ contract ERC20TokenVendor{
 
     ERC20TokenTemplate my_token;
     uint8 public convert_ratio = 0; //gwei to token
+    address payable private _owner;
 
     event buy_tokens_event(address buyer, uint256 amount);
 
     constructor(address erc20_address, uint8 _convert_ratio) public{
         my_token = ERC20TokenTemplate(erc20_address);
         convert_ratio = _convert_ratio;
+        _owner = msg.sender;
     }
 
     function buy_tokens() public payable{
@@ -25,6 +27,7 @@ contract ERC20TokenVendor{
         bool sent = my_token.transfer(msg.sender, amount_in_token);
         require(sent, "Failed to transfer token to user");
 
+        _owner.transfer(msg.value);
         emit buy_tokens_event(msg.sender, amount_in_token);
     }
 
